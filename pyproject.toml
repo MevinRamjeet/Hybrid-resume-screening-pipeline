@@ -6,8 +6,9 @@ authors = [
     {name = "David Adediji",email = "david.adediji@sil.mu"}
 ]
 readme = "README.md"
-requires-python = ">=3.9, <=3.11"
+requires-python = ">=3.9, <3.12"
 dependencies = [
+    "openai (>=2.3.0,<3.0.0)"
 ]
 
 
