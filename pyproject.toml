@@ -1,0 +1,16 @@
+[project]
+name = "hybrid-resume-screening-pipeline"
+version = "0.1.0"
+description = "Prototype of hybrid resume screening pipeline"
+authors = [
+    {name = "David Adediji",email = "david.adediji@sil.mu"}
+]
+readme = "README.md"
+requires-python = ">=3.9, <=3.11"
+dependencies = [
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
