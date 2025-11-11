@@ -1,89 +1,76 @@
 import logging
 import os
 import sys
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
-
-# Safer rotating handler for threaded & multiprocessed environments
-from concurrent_log_handler import ConcurrentRotatingFileHandler
 from dotenv import load_dotenv
-
-# For optional structured (JSON) logs
-try:
-    from pythonjsonlogger import jsonlogger
-
-    HAS_JSON_LOGGER = True
-except ImportError:
-    HAS_JSON_LOGGER = False
 
 load_dotenv()
 
+app_name = os.getenv("APP_NAME", "default_app")
+log_filename = os.getenv("LOG_FILE", "app.log")  # Default filename if not set
+log_level = os.getenv("LOG_LEVEL", "INFO")
+logging_levels = {
+"CRITICAL" : 50,
+"FATAL" : 50,
+"ERROR" : 40,
+'WARNING' : 30,
+"WARN" : 50,
+"INFO" : 20,
+"DEBUG" : 10,
+"NOTSET" : 0,
+}
 
-def setup_logger(
-        name: str = None,
-        log_file: str = None,
-        log_level: str = None,
-        max_bytes: int = None,
-        backup_count: int = None,
-        use_json: bool = None,
-):
+def setup_logger(name=app_name, log_file=log_filename, level=logging_levels[log_level]):
     """
-    Returns a logger configured with:
-      - Dynamic log level via LOG_LEVEL
-      - Console output
-      - ConcurrentRotatingFileHandler for safety
-      - Optional JSON formatting via JSON_LOGS
-      - Configurable rotation size & backups via env
+    Create a comprehensive logger with multiple handlers.
+
+    Features:
+    - Console output
+    - File logging with rotation
+    - Structured logging
     """
+    # Get the root project directory
+    project_root = Path(__file__).resolve().parent
 
-    # —— Configuration from environment with sensible defaults ——
-    name = name or os.getenv("APP_NAME", __name__)
-    log_file = log_file or os.getenv("LOG_FILE", "app.log")
-    log_level = (log_level or os.getenv("LOG_LEVEL", "DEBUG")).upper()
-    max_bytes = max_bytes or int(os.getenv("LOG_MAX_BYTES", 10 * 1024 * 1024))  # 10 MB
-    backup_count = backup_count or int(os.getenv("LOG_BACKUP_COUNT", 5))
-    use_json = use_json if use_json is not None else os.getenv("JSON_LOGS", "false").lower() == "true"
-
-    # —— Build paths ——
-    project_root = Path(__file__).resolve().parent.parent.parent
+    # Construct log file path
     log_path = project_root / log_file
-    log_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # —— Create or retrieve logger ——
+    # Ensure log directory exists
+    log_dir = log_path.parent  # Extract directory path from log file path
+    log_dir.mkdir(parents=True, exist_ok=True)  # Create directory if it doesn't exist
+
+    # Create logger
     logger = logging.getLogger(name)
-    logger.setLevel(getattr(logging, log_level, logging.INFO))
+    logger.setLevel(level)
 
-    # Avoid duplicate handlers if re‑calling setup
-    if logger.hasHandlers():
-        logger.handlers.clear()
+    # Clear any existing handlers (avoid duplicate logs)
+    logger.handlers.clear()
 
-    # —— Formatter(s) ——
-    if use_json and HAS_JSON_LOGGER:
-        fmt = jsonlogger.JsonFormatter(
-            '%(asctime)s %(name)s %(levelname)s %(filename)s %(lineno)d %(message)s'
-        )
-    else:
-        fmt = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s'
-        )
-
-    # —— Console Handler ——
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(getattr(logging, os.getenv("CONSOLE_LOG_LEVEL", log_level), logging.INFO))
-    ch.setFormatter(fmt)
-    logger.addHandler(ch)
-
-    # —— File Handler ——
-    fh = ConcurrentRotatingFileHandler(
-        filename=str(log_path),
-        maxBytes=max_bytes,
-        backupCount=backup_count,
+    # Console Handler with Line Number
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(level)
+    console_formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s"
     )
-    fh.setLevel(getattr(logging, os.getenv("FILE_LOG_LEVEL", "DEBUG"), logging.DEBUG))
-    fh.setFormatter(fmt)
-    logger.addHandler(fh)
+    console_handler.setFormatter(console_formatter)
+
+    # File Handler with Rotation
+    file_handler = RotatingFileHandler(
+        log_path, maxBytes=10 * 1024 * 1024, backupCount=5  # 10MB rotation
+    )
+    file_handler.setLevel(level)
+    file_formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s"
+    )
+    file_handler.setFormatter(file_formatter)
+
+    # Add handlers to logger
+    logger.addHandler(console_handler)
+    logger.addHandler(file_handler)
 
     return logger
 
 
-# Single, shared logger instance
+# Logger instance
 configured_logger = setup_logger()
