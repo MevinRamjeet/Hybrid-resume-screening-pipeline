@@ -7,8 +7,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app_name = os.getenv("APP_NAME", "default_app")
-log_filename = os.getenv("LOG_FILE", "app.log")  # Default filename if not set
+from src.config.system import cfg
+
+
+app_name = cfg.app_name
+log_filename = cfg.log_filename
 log_level = os.getenv("LOG_LEVEL", "INFO")
 logging_levels = {
 "CRITICAL" : 50,
@@ -30,10 +33,10 @@ def setup_logger(name=app_name, log_file=log_filename, level=logging_levels[log_
     - File logging with rotation
     - Structured logging
     """
-    # Get the root project directory
-    project_root = Path(__file__).resolve().parent
+    # Get the root project directory (go up from src/utils to project root)
+    project_root = Path(__file__).resolve().parent.parent.parent
 
-    # Construct log file path
+    # Construct log file path in project root
     log_path = project_root / log_file
 
     # Ensure log directory exists

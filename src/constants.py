@@ -1,5 +1,5 @@
-# Structured rules for validation
-structured_rules = [
+# Combined rules for validation (structured and unstructured)
+rules = [
     # =========================
     # BASIC ELIGIBILITY
     # =========================
@@ -100,6 +100,40 @@ structured_rules = [
     {"field": "other_names", "type": "length_check", "min_length": 2, "max_length": 100},
     {"field": "weight", "type": "range", "min": 30, "max": 200, "optional": True},
     {"field": "height", "type": "range", "min": 120, "max": 220, "optional": True},
+
+    # =========================
+    # UNSTRUCTURED FIELDS FOR LLM EVALUATION
+    # =========================
+    {
+        "field": "investigation_details",
+        "type": "unstructured",
+        "description": "Details about any investigation or enquiry",
+        "evaluation_criteria": "Assess if the investigation details indicate any serious misconduct or character issues that would disqualify the candidate"
+    },
+    {
+        "field": "conviction_details",
+        "type": "unstructured",
+        "description": "Details about any court conviction",
+        "evaluation_criteria": "Evaluate if the conviction details show serious criminal activity that would make the candidate unsuitable for government employment"
+    },
+    {
+        "field": "resignation_details",
+        "type": "unstructured",
+        "description": "Details about resignation, retirement, or dismissal from previous employment",
+        "evaluation_criteria": "Determine if the resignation/dismissal details indicate poor performance, misconduct, or other issues that would affect suitability"
+    },
+    {
+        "field": "other_qualifications",
+        "type": "unstructured",
+        "description": "Additional qualifications not captured in structured fields",
+        "evaluation_criteria": "Assess if these additional qualifications are relevant and valuable for the applied position"
+    },
+    {
+        "field": "residential_address",
+        "type": "unstructured",
+        "description": "Candidate's residential address",
+        "evaluation_criteria": "Check if the address appears complete and valid for a Mauritian resident"
+    }
 ]
 
 # Fields marked as unstructured for LLM evaluation

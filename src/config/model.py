@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from typing import Callable, Union
 
-from src.prompts.template import qwen_prompt_template
+from src.prompts.template import qwen_prompt_template, openai_prompt_template
+
 
 @dataclass
 class ModelConfig:

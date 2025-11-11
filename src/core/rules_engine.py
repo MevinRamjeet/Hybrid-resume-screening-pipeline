@@ -286,6 +286,10 @@ def evaluate_rule(data: Dict[str, Any], rule: Dict[str, Any]) -> (bool, str):
 
         return (False, f"Field {field} is not an array for matching rule.")
 
+    elif rule_type == "unstructured":
+        # Skip unstructured rules in structured evaluation - they're handled separately
+        return (True, f"Unstructured field '{field}' - handled by LLM evaluation")
+    
     else:
         return (False, f"Unknown rule type: {rule_type}")
 
