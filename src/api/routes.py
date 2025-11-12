@@ -37,7 +37,7 @@ async def evaluate_application(application: PSCApplication):
         unstructured_fields = get_unstructured_fields(rules)
 
         # Run hybrid evaluation
-        results = hybrid_evaluate_application(application_data, structured_rules, unstructured_fields)
+        results = await hybrid_evaluate_application(application_data, structured_rules, unstructured_fields)
 
         # Create response
         response = EvaluationResponse(
@@ -76,7 +76,7 @@ async def evaluate_application_json(application_data: Dict[str, Any]):
         unstructured_fields = get_unstructured_fields(rules)
 
         # Run hybrid evaluation
-        results = hybrid_evaluate_application(application_data, structured_rules, unstructured_fields)
+        results = await hybrid_evaluate_application(application_data, structured_rules, unstructured_fields)
 
         # Add timestamp
         results["timestamp"] = datetime.now().isoformat()
@@ -119,7 +119,7 @@ async def evaluate_application_file(file: UploadFile = File(...)):
         unstructured_fields = get_unstructured_fields(rules)
 
         # Run hybrid evaluation
-        results = hybrid_evaluate_application(application_data, structured_rules, unstructured_fields)
+        results = await hybrid_evaluate_application(application_data, structured_rules, unstructured_fields)
 
         # Add metadata
         results["timestamp"] = datetime.now().isoformat()

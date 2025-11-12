@@ -122,12 +122,12 @@ rules = [
         "description": "Details about resignation, retirement, or dismissal from previous employment",
         "evaluation_criteria": "Determine if the resignation/dismissal details indicate poor performance, misconduct, or other issues that would affect suitability"
     },
-    {
-        "field": "other_qualifications",
-        "type": "unstructured",
-        "description": "Additional qualifications not captured in structured fields",
-        "evaluation_criteria": "Assess if these additional qualifications are relevant and valuable for the applied position"
-    },
+    # {
+    #     "field": "other_qualifications",
+    #     "type": "unstructured",
+    #     "description": "Additional qualifications not captured in structured fields",
+    #     "evaluation_criteria": "Assess if these additional qualifications are relevant and valuable for the applied position"
+    # },
     {
         "field": "residential_address",
         "type": "unstructured",

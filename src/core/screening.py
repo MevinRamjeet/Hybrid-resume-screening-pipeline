@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 import sys
@@ -93,26 +94,50 @@ def mock_llm_evaluation(unstructured_data: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def evaluate_unstructured_data(unstructured_data: Dict[str, Any], post_applied_for: str = "") -> Dict[str, Any]:
+async def evaluate_unstructured_data(unstructured_data: Dict[str, Any], unstructured_fields: List[Dict[str, Any]], post_applied_for: str = "") -> Dict[str, Any]:
     """
     Evaluates unstructured data using LLM.
 
     Args:
         unstructured_data: Dictionary of unstructured data to evaluate
+        unstructured_fields: List of expected unstructured field definitions
         post_applied_for: The position being applied for (for context)
 
     Returns:
         Dictionary containing LLM evaluation results
     """
+    # If no unstructured fields are expected, pass the evaluation
+    if not unstructured_fields:
+        return {"passed": True, "overall_reasoning": "No unstructured evaluation criteria defined", "field_evaluations": [], "llm_response": "No unstructured fields to evaluate"}
+    
+    # If unstructured fields are expected but no data is provided, fail the evaluation
     if not unstructured_data:
-        return {"passed": True, "details": [], "llm_response": "No unstructured data to evaluate"}
+        return {
+            "passed": False, 
+            "overall_reasoning": f"Required unstructured data missing. Expected {len(unstructured_fields)} field(s) but none provided.",
+            "field_evaluations": [
+                {
+                    "field": field["field"],
+                    "assessment": "FAIL",
+                    "reasoning": "Required field data not provided"
+                } for field in unstructured_fields
+            ],
+            "llm_response": "Evaluation failed due to missing required unstructured data"
+        }
+
+    print(post_applied_for)
+
 
     # Prepare the prompt for LLM evaluation
     prompt_parts = [
         f"You are evaluating a job application for the position: {post_applied_for or 'Government Position'}",
         "Please evaluate the following unstructured data fields and determine if they indicate any issues that would disqualify the candidate.",
         "For each field, provide a score (PASS/FAIL) and brief reasoning.",
-        "\nUnstructured Data to Evaluate:"
+        "",
+        "IMPORTANT: If ANY field evaluation is marked as FAIL, the overall_assessment MUST be FAIL.",
+        "The overall assessment should only be PASS if ALL individual field evaluations are PASS.",
+        "",
+        "Unstructured Data to Evaluate:"
     ]
 
     field_evaluations = []
@@ -152,12 +177,29 @@ def evaluate_unstructured_data(unstructured_data: Dict[str, Any], post_applied_f
                 # Try to parse JSON response
                 evaluation_result = json.loads(llm_response)
 
-                overall_passed = evaluation_result.get("overall_assessment", "FAIL").upper() == "PASS"
+                # Get LLM's overall assessment
+                llm_overall_passed = evaluation_result.get("overall_assessment", "FAIL").upper() == "PASS"
+                
+                # Validate consistency: if any field evaluation is FAIL, overall should be FAIL
+                field_evaluations = evaluation_result.get("field_evaluations", [])
+                has_failed_fields = any(
+                    field_eval.get("assessment", "").upper() == "FAIL" 
+                    for field_eval in field_evaluations
+                )
+                
+                # Override LLM's assessment if inconsistent
+                if has_failed_fields and llm_overall_passed:
+                    overall_passed = False
+                    overall_reasoning = f"Overall assessment corrected to FAIL due to failed field evaluations. Original LLM reasoning: {evaluation_result.get('overall_reasoning', '')}"
+                    configured_logger.warning("LLM provided inconsistent evaluation - corrected overall assessment from PASS to FAIL due to failed fields")
+                else:
+                    overall_passed = llm_overall_passed
+                    overall_reasoning = evaluation_result.get("overall_reasoning", "")
 
                 return {
                     "passed": overall_passed,
-                    "overall_reasoning": evaluation_result.get("overall_reasoning", ""),
-                    "field_evaluations": evaluation_result.get("field_evaluations", []),
+                    "overall_reasoning": overall_reasoning,
+                    "field_evaluations": field_evaluations,
                     "llm_response": llm_response
                 }
             except json.JSONDecodeError:
@@ -179,10 +221,11 @@ def evaluate_unstructured_data(unstructured_data: Dict[str, Any], post_applied_f
         return mock_llm_evaluation(unstructured_data)
 
 
-def hybrid_evaluate_application(data: Dict[str, Any], structured_rules: List[Dict[str, Any]],
-                                unstructured_fields: List[Dict[str, Any]]) -> Dict[str, Any]:
+async def hybrid_evaluate_application(data: Dict[str, Any], structured_rules: List[Dict[str, Any]],
+                                      unstructured_fields: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
     Performs hybrid evaluation combining structured rules and LLM-based unstructured evaluation.
+    Runs structured and unstructured evaluations in parallel for better performance.
 
     Args:
         data: The application data dictionary
@@ -194,17 +237,31 @@ def hybrid_evaluate_application(data: Dict[str, Any], structured_rules: List[Dic
     """
     configured_logger.info("Starting hybrid evaluation")
 
-    # Step 1: Evaluate structured rules
-    structured_results = evaluate_rules(data, structured_rules)
-    configured_logger.info(f"Structured evaluation completed: {structured_results['passed']}")
-
-    # Step 2: Gather and evaluate unstructured data
+    # Gather unstructured data first
     unstructured_data = gather_unstructured_data(data, unstructured_fields)
     configured_logger.info(f"Gathered {len(unstructured_data)} unstructured fields")
-
+    
     post_applied_for = data.get("post_applied_for", "")
-    unstructured_results = evaluate_unstructured_data(unstructured_data, post_applied_for)
-    configured_logger.info(f"Unstructured evaluation completed: {unstructured_results['passed']}")
+
+
+    # Run structured and unstructured evaluations in parallel
+    async def evaluate_structured():
+        """Wrapper for structured evaluation to run in parallel"""
+        result = evaluate_rules(data, structured_rules)
+        configured_logger.info(f"Structured evaluation completed: {result['passed']}")
+        return result
+    
+    async def evaluate_unstructured():
+        """Wrapper for unstructured evaluation to run in parallel"""
+        result = await evaluate_unstructured_data(unstructured_data, unstructured_fields, post_applied_for)
+        configured_logger.info(f"Unstructured evaluation completed: {result['passed']}")
+        return result
+
+    # Execute both evaluations concurrently
+    structured_results, unstructured_results = await asyncio.gather(
+        evaluate_structured(),
+        evaluate_unstructured()
+    )
 
     # Step 3: Combine results
     overall_passed = structured_results["passed"] and unstructured_results["passed"]
@@ -233,7 +290,7 @@ def hybrid_evaluate_application(data: Dict[str, Any], structured_rules: List[Dic
 from pathlib import Path
 
 
-def main():
+async def main():
     """Main function to demonstrate the hybrid screening pipeline."""
     input_file = "data/sample.json"
 
@@ -257,7 +314,7 @@ def main():
         unstructured_fields = get_unstructured_fields(rules)
 
         # Run hybrid evaluation
-        results = hybrid_evaluate_application(application_data, structured_rules, unstructured_fields)
+        results = await hybrid_evaluate_application(application_data, structured_rules, unstructured_fields)
 
         # Display results
         print("\n" + "=" * 40)
@@ -311,4 +368,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
