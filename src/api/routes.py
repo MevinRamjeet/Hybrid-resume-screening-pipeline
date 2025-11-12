@@ -7,16 +7,12 @@ from fastapi import HTTPException, UploadFile, File, APIRouter
 from fastapi.responses import JSONResponse
 from src.config.system import cfg
 from src.schema.api import EvaluationResponse
-
-# Add the project root to the path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-
 from src.core.screening import hybrid_evaluate_application, get_structured_rules, get_unstructured_fields
 from src.constants import rules
 from src.utils.logger import configured_logger
 from src.schema.extraction import PSCApplication
 
-router = APIRouter(prefix=f"api/{cfg.api_version}")
+router = APIRouter(prefix=f"/api/{cfg.api_version}")
 
 
 @router.post("/evaluate", response_model=EvaluationResponse)
