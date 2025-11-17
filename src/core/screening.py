@@ -267,12 +267,19 @@ async def hybrid_evaluate_application(data: Dict[str, Any], structured_rules: Li
     overall_passed = structured_results["passed"] and unstructured_results["passed"]
 
     # Calculate scores
-    structured_score = sum(1 for detail in structured_results["details"] if detail["passed"]) / len \
-        (structured_results["details"]) if structured_results["details"] else 0
+    # Count passed structured rules
+    passed_structured_count = sum(1 for detail in structured_results["details"] if detail["passed"])
+    total_structured_count = len(structured_results["details"])
+    structured_score = passed_structured_count / total_structured_count if total_structured_count else 0
+    
+    # Treat unstructured evaluation as one additional field/rule
+    # Overall score = (passed_structured_rules + unstructured_binary) / (total_structured_rules + 1)
+    unstructured_binary = 1 if unstructured_results["passed"] else 0
+    overall_score = (passed_structured_count + unstructured_binary) / (total_structured_count + 1) if total_structured_count else unstructured_binary
 
     return {
         "overall_passed": overall_passed,
-        "overall_score": (structured_score + (1 if unstructured_results["passed"] else 0)) / 2,
+        "overall_score": overall_score,
         "structured_evaluation": structured_results,
         "unstructured_evaluation": unstructured_results,
         "unstructured_data_found": unstructured_data,
@@ -280,8 +287,8 @@ async def hybrid_evaluate_application(data: Dict[str, Any], structured_rules: Li
             "structured_passed": structured_results["passed"],
             "unstructured_passed": unstructured_results["passed"],
             "structured_score": structured_score,
-            "total_structured_rules": len(structured_results["details"]),
-            "failed_structured_rules": len([d for d in structured_results["details"] if not d["passed"]]),
+            "total_structured_rules": total_structured_count,
+            "failed_structured_rules": total_structured_count - passed_structured_count,
             "unstructured_fields_evaluated": len(unstructured_data)
         }
     }
