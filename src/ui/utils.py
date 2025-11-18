@@ -98,10 +98,20 @@ def format_evaluation_results(results: Dict[str, Any]) -> str:
         if failed_rules:
             output.append("\n### ❌ Failed Rules:\n")
             for detail in failed_rules:
-                output.append(f"- **{detail.get('field', 'Unknown')}** ({detail.get('rule_type', 'N/A')})")
-                output.append(f"  - Expected: {detail.get('expected', 'N/A')}")
-                output.append(f"  - Actual: {detail.get('actual', 'N/A')}")
-                output.append(f"  - Message: {detail.get('message', 'N/A')}\n")
+                # Extract information from the rule object
+                rule = detail.get("rule", {})
+                field = rule.get("field")
+                rule_type = rule.get("type", "N/A")
+                reason = detail.get("reason", "N/A")
+                
+                # Format the rule display based on whether it has a field
+                if field:
+                    output.append(f"- **{field}** ({rule_type})")
+                else:
+                    # For logical operators (AND/OR) or rules without fields
+                    output.append(f"- **{rule_type.upper()} Rule**")
+                
+                output.append(f"  - {reason}\n")
         
         # Passed rules (collapsed)
         passed_rules = [d for d in details if d.get("passed", False)]
@@ -134,22 +144,22 @@ def format_evaluation_results(results: Dict[str, Any]) -> str:
 def format_rules_display(rules_data: Dict[str, Any]) -> str:
     """
     Format rules configuration for display.
-    
+
     Args:
         rules_data: Rules configuration dictionary
-        
+
     Returns:
         Formatted string for display
     """
     if rules_data.get("error"):
         return f"❌ **Error**: {rules_data.get('message', 'Unknown error')}"
-    
+
     output = []
     output.append("# 📜 Evaluation Rules Configuration\n")
     output.append(f"**Total Rules**: {rules_data.get('total_rules', 0)}")
     output.append(f"**Structured Rules**: {rules_data.get('structured_count', 0)}")
     output.append(f"**Unstructured Fields**: {rules_data.get('unstructured_count', 0)}\n")
-    
+
     # Structured rules
     structured_rules = rules_data.get("structured_rules", [])
     if structured_rules:
@@ -158,7 +168,7 @@ def format_rules_display(rules_data: Dict[str, Any]) -> str:
             rule_type = rule.get("type", "N/A")
             field = rule.get("field", "N/A")
             output.append(f"{i}. **{field}** - Type: `{rule_type}`")
-            
+
             # Add relevant details based on rule type
             if "value" in rule:
                 output.append(f"   - Value: {rule['value']}")
@@ -167,7 +177,7 @@ def format_rules_display(rules_data: Dict[str, Any]) -> str:
             if "pattern" in rule:
                 output.append(f"   - Pattern: `{rule['pattern']}`")
             output.append("")
-    
+
     # Unstructured fields
     unstructured_fields = rules_data.get("unstructured_fields", [])
     if unstructured_fields:
@@ -176,12 +186,12 @@ def format_rules_display(rules_data: Dict[str, Any]) -> str:
             field_name = field.get("field", "N/A")
             description = field.get("description", "N/A")
             criteria = field.get("evaluation_criteria", "N/A")
-            
+
             output.append(f"{i}. **{field_name}**")
             output.append(f"   - Description: {description}")
             output.append(f"   - Criteria: {criteria}")
             output.append("")
-    
+
     return "\n".join(output)
 
 
@@ -208,57 +218,58 @@ def validate_json_input(json_str: str) -> tuple[bool, Optional[Dict[str, Any]], 
 def create_sample_application() -> str:
     """
     Create a sample application JSON for testing.
-    
-    Returns:
-        JSON string of sample application
     """
-    sample = {
-        "post_applied_for": "Software Engineer",
-        "ministry_department": "Ministry of Technology",
-        "date_of_advertisement": "2024-01-15",
-        "national_identity_no": "M1234567890123",
-        "surname": "Ramjeet",
-        "other_names": "Mevin Kumar",
-        "residential_address": "123 Royal Road, Port Louis",
-        "date_of_birth": "1995-06-15",
-        "age": 29,
-        "place_of_birth": "Port Louis",
-        "nationality": "Mauritian",
-        "phone_mobile": "52345678",
-        "email": "mevin.ramjeet@example.com",
-        "ordinary_level_exams": [
-            {
-                "examination": "Cambridge O-Level",
-                "year": 2011,
-                "subjects": [
-                    {"subject": "Mathematics", "grade": "A"},
-                    {"subject": "English Language", "grade": "B"},
-                    {"subject": "Physics", "grade": "A"},
-                    {"subject": "Chemistry", "grade": "B"},
-                    {"subject": "Biology", "grade": "C"}
-                ]
-            }
-        ],
-        "degree_qualifications": [
-            {
-                "qualification": "BSc Computer Science",
-                "institution": "University of Mauritius",
-                "country": "Mauritius",
-                "year_obtained": 2017
-            }
-        ],
-        "other_employment": [
-            {
-                "employer": "Tech Solutions Ltd",
-                "position": "Junior Developer",
-                "start_date": "2017-08-01",
-                "end_date": "2020-12-31",
-                "duties": "Software development and maintenance"
-            }
-        ],
-        "investigation_enquiry": False,
-        "court_conviction": False,
-        "resigned_retired_dismissed": False
-    }
-    
-    return json.dumps(sample, indent=2)
+    try:
+        sample = {
+            "post_applied_for": "Software Engineer",
+            "ministry_department": "Ministry of Technology",
+            "date_of_advertisement": "2024-01-15",
+            "national_identity_no": "M1234567890123",
+            "surname": "Ramjeet",
+            "other_names": "Mevin Kumar",
+            "residential_address": "123 Royal Road, Port Louis",
+            "date_of_birth": "1995-06-15",
+            "age": 29,
+            "place_of_birth": "Port Louis",
+            "nationality": "Mauritian",
+            "phone_mobile": "52345678",
+            "email": "mevin.ramjeet@example.com",
+            "ordinary_level_exams": [
+                {
+                    "examination": "Cambridge O-Level",
+                    "year": 2011,
+                    "subjects": [
+                        {"subject": "Mathematics", "grade": "A"},
+                        {"subject": "English Language", "grade": "B"},
+                        {"subject": "Physics", "grade": "A"},
+                        {"subject": "Chemistry", "grade": "B"},
+                        {"subject": "Biology", "grade": "C"}
+                    ]
+                }
+            ],
+            "degree_qualifications": [
+                {
+                    "qualification": "BSc Computer Science",
+                    "institution": "University of Mauritius",
+                    "country": "Mauritius",
+                    "year_obtained": 2017
+                }
+            ],
+            "other_employment": [
+                {
+                    "employer": "Tech Solutions Ltd",
+                    "position": "Junior Developer",
+                    "start_date": "2017-08-01",
+                    "end_date": "2020-12-31",
+                    "duties": "Software development and maintenance"
+                }
+            ],
+            "investigation_enquiry": False,
+            "court_conviction": False,
+            "resigned_retired_dismissed": False
+        }
+
+        return json.dumps(sample, indent=2)
+
+    except Exception as e:
+        return json.dumps({"error": f"Failed to create sample: {str(e)}"})

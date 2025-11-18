@@ -120,7 +120,7 @@ rules = [
         "field": "resignation_details",
         "type": "unstructured",
         "description": "Details about resignation, retirement, or dismissal from previous employment",
-        "evaluation_criteria": "Determine if the resignation/dismissal details indicate poor performance, misconduct, or other issues that would affect suitability"
+        "evaluation_criteria": "Determine if the resignation/dismissal details specifically indicate poor performance, misconduct, or other issues that would affect suitability"
     },
     # {
     #     "field": "other_qualifications",
