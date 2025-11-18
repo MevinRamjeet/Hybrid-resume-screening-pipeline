@@ -10,7 +10,7 @@ import json
 from typing import Dict, Any
 
 # API base URL
-BASE_URL = "http://localhost:8000"
+BASE_URL = "http://localhost:8002"
 
 
 def test_health_check():

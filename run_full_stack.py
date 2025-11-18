@@ -54,8 +54,8 @@ def main():
     try:
         # Start FastAPI server
         print_colored("\n[1/2] 🚀 Starting FastAPI Server...", Colors.OKCYAN)
-        print_colored("      URL: http://localhost:8000", Colors.OKBLUE)
-        print_colored("      Docs: http://localhost:8000/docs\n", Colors.OKBLUE)
+        print_colored("      URL: http://localhost:8002", Colors.OKBLUE)
+        print_colored("      Docs: http://localhost:8002/docs\n", Colors.OKBLUE)
         
         api_process = subprocess.Popen(
             [sys.executable, "run_server.py"],
@@ -112,8 +112,8 @@ def main():
     ║                                                               ║
     ║   ✅ Full Stack Successfully Launched!                        ║
     ║                                                               ║
-    ║   📍 FastAPI Backend:  http://localhost:8000                  ║
-    ║   📍 API Docs:         http://localhost:8000/docs             ║
+    ║   📍 FastAPI Backend:  http://localhost:8002                  ║
+    ║   📍 API Docs:         http://localhost:8002/docs             ║
     ║   📍 Gradio Frontend:  http://127.0.0.1:7860                  ║
     ║                                                               ║
     ║   Press Ctrl+C to stop both servers                          ║

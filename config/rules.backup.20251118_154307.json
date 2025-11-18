@@ -1,0 +1,135 @@
+{
+  "rules": [
+    {
+      "field": "nationality",
+      "type": "exact_match",
+      "value": "Mauritian",
+      "description": "Candidate must be Mauritian"
+    },
+    {
+      "field": "age",
+      "type": "range",
+      "min": 18,
+      "max": 45,
+      "description": "Age must be between 18 and 45"
+    },
+    {
+      "field": "date_of_birth",
+      "type": "regex",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "Date of birth must be in YYYY-MM-DD format"
+    },
+    {
+      "field": "national_identity_no",
+      "type": "regex",
+      "pattern": "^[A-Z0-9]{14,20}$",
+      "description": "National ID must be 14-20 alphanumeric characters"
+    },
+    {
+      "field": "national_identity_no",
+      "type": "length_check",
+      "min_length": 14,
+      "max_length": 20,
+      "description": "National ID length validation"
+    },
+    {
+      "field": "email",
+      "type": "regex",
+      "pattern": "^[\\w\\.-]+@[\\w\\.-]+\\.\\w+$",
+      "description": "Valid email address required"
+    },
+    {
+      "field": "phone_mobile",
+      "type": "regex",
+      "pattern": "^[0-9]{7,8}$",
+      "description": "Mobile phone must be 7-8 digits"
+    },
+    {
+      "field": "residential_address",
+      "type": "string_contains",
+      "values": ["Road", "Street", "Avenue", "Lane"],
+      "case_insensitive": true,
+      "description": "Address must contain street type"
+    },
+    {
+      "field": "residential_address",
+      "type": "length_check",
+      "min_length": 10,
+      "description": "Address must be at least 10 characters"
+    },
+    {
+      "type": "or",
+      "rules": [
+        {"field": "phone_office", "type": "exists"},
+        {"field": "phone_home", "type": "exists"},
+        {"field": "phone_mobile", "type": "exists"}
+      ],
+      "description": "At least one phone number required"
+    },
+    {
+      "type": "and",
+      "rules": [
+        {"field": "post_applied_for", "type": "exists"},
+        {"field": "ministry_department", "type": "exists"},
+        {"field": "date_of_advertisement", "type": "regex", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+        {"field": "date_of_advertisement", "type": "date_range", "after": "2020-01-01", "before": "2030-12-31"}
+      ],
+      "description": "Application information must be complete"
+    },
+    {
+      "type": "and",
+      "rules": [
+        {"field": "ordinary_level_exams", "type": "exists"},
+        {"field": "ordinary_level_exams", "type": "array_length", "min_length": 1},
+        {"field": "ordinary_level_exams.0.subjects", "type": "exists"},
+        {"field": "ordinary_level_exams.0.subjects", "type": "array_length", "min_length": 5},
+        {
+          "field": "ordinary_level_exams.*.subjects",
+          "match_field": "subject",
+          "match_value": "Mathematics",
+          "check_field": "grade",
+          "type": "one_of",
+          "values": ["A", "B", "C", "1", "2", "3"]
+        },
+        {
+          "field": "ordinary_level_exams.*.subjects",
+          "match_field": "subject",
+          "match_value": "English Language",
+          "check_field": "grade",
+          "type": "one_of",
+          "values": ["1", "2", "3", "A", "B", "C"]
+        }
+      ],
+      "description": "O-Level requirements: minimum 5 subjects with passes in Math and English"
+    },
+    {
+      "field": "investigation_enquiry",
+      "type": "boolean",
+      "value": false,
+      "description": "No ongoing investigations"
+    },
+    {
+      "field": "court_conviction",
+      "type": "boolean",
+      "value": false,
+      "description": "No court convictions"
+    },
+    {
+      "field": "residential_address",
+      "type": "unstructured",
+      "description": "Residential address",
+      "evaluation_criteria": "Assess if the residential address is complete and properly formatted"
+    },
+    {
+      "field": "work_experience",
+      "type": "unstructured",
+      "description": "Work experience",
+      "evaluation_criteria": "Evaluate the relevance and quality of work experience for the position"
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "last_updated": "2025-11-18",
+    "description": "Default evaluation rules for job application screening"
+  }
+}

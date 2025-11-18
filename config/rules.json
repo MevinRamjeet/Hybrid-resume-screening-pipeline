@@ -1,0 +1,328 @@
+{
+  "rules": [
+    {
+      "field": "nationality",
+      "type": "exact_match",
+      "value": "Mauritian",
+      "description": "Candidate must be Mauritian"
+    },
+    {
+      "field": "age",
+      "type": "range",
+      "min": 18,
+      "max": 45,
+      "description": "Age must be between 18 and 45"
+    },
+    {
+      "field": "date_of_birth",
+      "type": "regex",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "Date of birth must be in YYYY-MM-DD format"
+    },
+    {
+      "field": "national_identity_no",
+      "type": "regex",
+      "pattern": "^[A-Z0-9]{14,20}$",
+      "description": "National ID must be 14-20 alphanumeric characters"
+    },
+    {
+      "field": "national_identity_no",
+      "type": "length_check",
+      "min_length": 14,
+      "max_length": 20,
+      "description": "National ID length validation"
+    },
+    {
+      "field": "email",
+      "type": "regex",
+      "pattern": "^[\\w\\.-]+@[\\w\\.-]+\\.\\w+$",
+      "description": "Valid email address required"
+    },
+    {
+      "field": "phone_mobile",
+      "type": "regex",
+      "pattern": "^[0-9]{7,8}$",
+      "description": "Mobile phone must be 7-8 digits"
+    },
+    {
+      "field": "residential_address",
+      "type": "string_contains",
+      "values": ["Road", "Street", "Avenue", "Lane"],
+      "case_insensitive": true,
+      "description": "Address must contain street type"
+    },
+    {
+      "field": "residential_address",
+      "type": "length_check",
+      "min_length": 10,
+      "description": "Address must be at least 10 characters"
+    },
+    {
+      "type": "or",
+      "rules": [
+        {
+          "field": "phone_office",
+          "type": "exists"
+        },
+        {
+          "field": "phone_home",
+          "type": "exists"
+        },
+        {
+          "field": "phone_mobile",
+          "type": "exists"
+        }
+      ],
+      "description": "At least one phone number required"
+    },
+    {
+      "type": "and",
+      "rules": [
+        {
+          "field": "post_applied_for",
+          "type": "exists"
+        },
+        {
+          "field": "ministry_department",
+          "type": "exists"
+        },
+        {
+          "field": "date_of_advertisement",
+          "type": "regex",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        {
+          "field": "date_of_advertisement",
+          "type": "date_range",
+          "after": "2020-01-01",
+          "before": "2030-12-31"
+        }
+      ],
+      "description": "Application information must be complete"
+    },
+    {
+      "type": "and",
+      "rules": [
+        {
+          "field": "ordinary_level_exams",
+          "type": "exists"
+        },
+        {
+          "field": "ordinary_level_exams",
+          "type": "array_length",
+          "min_length": 1
+        },
+        {
+          "field": "ordinary_level_exams.0.subjects",
+          "type": "exists"
+        },
+        {
+          "field": "ordinary_level_exams.0.subjects",
+          "type": "array_length",
+          "min_length": 5
+        },
+        {
+          "field": "ordinary_level_exams.*.subjects",
+          "match_field": "subject",
+          "match_value": "Mathematics",
+          "check_field": "grade",
+          "type": "one_of",
+          "values": ["A", "B", "C", "1", "2", "3"]
+        },
+        {
+          "field": "ordinary_level_exams.*.subjects",
+          "match_field": "subject",
+          "match_value": "English Language",
+          "check_field": "grade",
+          "type": "one_of",
+          "values": ["1", "2", "3", "A", "B", "C"]
+        }
+      ],
+      "description": "O-Level requirements: minimum 5 subjects with passes in Math and English"
+    },
+    {
+      "type": "optional_and",
+      "rules": [
+        {
+          "field": "advanced_level_exams",
+          "type": "exists"
+        },
+        {
+          "field": "advanced_level_exams",
+          "type": "array_length",
+          "min_length": 1
+        },
+        {
+          "field": "advanced_level_exams.0.subjects",
+          "type": "exists"
+        },
+        {
+          "field": "advanced_level_exams.*.subjects",
+          "match_field": "subject",
+          "match_value": "Mathematics",
+          "check_field": "grade",
+          "type": "one_of",
+          "values": ["A", "B", "C"]
+        },
+        {
+          "field": "advanced_level_exams.*.subjects",
+          "match_field": "subject",
+          "match_value": "English Language",
+          "check_field": "grade",
+          "type": "one_of",
+          "values": ["1", "2", "3", "A+", "B", "C"]
+        }
+      ],
+      "description": "A-Level requirements: passes in Math and English (if present)"
+    },
+    {
+      "type": "or",
+      "rules": [
+        {
+          "field": "technical_vocational_qualifications",
+          "type": "exists"
+        },
+        {
+          "field": "diploma_qualifications",
+          "type": "exists"
+        },
+        {
+          "field": "degree_qualifications",
+          "type": "exists"
+        },
+        {
+          "field": "degree_qualifications.*.country",
+          "type": "one_of",
+          "values": ["Mauritius", "UK", "USA", "Canada", "Australia", "France"]
+        },
+        {
+          "field": "post_degree_qualifications",
+          "type": "exists"
+        }
+      ],
+      "description": "At least one higher qualification required"
+    },
+    {
+      "type": "or",
+      "rules": [
+        {
+          "field": "current_government_employment",
+          "type": "exists"
+        },
+        {
+          "field": "previous_government_employment",
+          "type": "exists"
+        },
+        {
+          "field": "other_employment",
+          "type": "exists"
+        }
+      ],
+      "description": "Employment history required"
+    },
+    {
+      "field": "current_government_employment.date_of_appointment",
+      "type": "regex",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "optional": true,
+      "description": "Current government employment date format validation"
+    },
+    {
+      "field": "previous_government_employment.0.start_date",
+      "type": "regex",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "optional": true,
+      "description": "Previous government employment date format validation"
+    },
+    {
+      "field": "current_government_employment.start_date",
+      "type": "date_range",
+      "after": "1990-01-01",
+      "optional": true,
+      "description": "Current employment start date validation"
+    },
+    {
+      "field": "investigation_enquiry",
+      "type": "boolean",
+      "value": false,
+      "description": "No ongoing investigations"
+    },
+    {
+      "field": "court_conviction",
+      "type": "boolean",
+      "value": false,
+      "description": "No court convictions"
+    },
+    {
+      "field": "resigned_retired_dismissed",
+      "type": "boolean",
+      "value": false,
+      "description": "No resignation/retirement/dismissal issues"
+    },
+    {
+      "field": "surname",
+      "type": "length_check",
+      "min_length": 2,
+      "max_length": 50,
+      "description": "Surname length validation"
+    },
+    {
+      "field": "other_names",
+      "type": "length_check",
+      "min_length": 2,
+      "max_length": 100,
+      "description": "Other names length validation"
+    },
+    {
+      "field": "weight",
+      "type": "range",
+      "min": 30,
+      "max": 200,
+      "optional": true,
+      "description": "Weight validation (optional)"
+    },
+    {
+      "field": "height",
+      "type": "range",
+      "min": 120,
+      "max": 220,
+      "optional": true,
+      "description": "Height validation (optional)"
+    },
+    {
+      "field": "investigation_details",
+      "type": "unstructured",
+      "description": "Details about any investigation or enquiry",
+      "evaluation_criteria": "Assess if the investigation details indicate any serious misconduct or character issues that would disqualify the candidate"
+    },
+    {
+      "field": "conviction_details",
+      "type": "unstructured",
+      "description": "Details about any court conviction",
+      "evaluation_criteria": "Evaluate if the conviction details show serious criminal activity that would make the candidate unsuitable for government employment"
+    },
+    {
+      "field": "resignation_details",
+      "type": "unstructured",
+      "description": "Details about resignation, retirement, or dismissal from previous employment",
+      "evaluation_criteria": "Determine if the resignation/dismissal details specifically indicate poor performance, misconduct, or other issues that would affect suitability"
+    },
+    {
+      "field": "residential_address",
+      "type": "unstructured",
+      "description": "Candidate's residential address",
+      "evaluation_criteria": "Check if the address appears complete and valid for a Mauritian resident"
+    },
+    {
+      "field": "other_qualifications",
+      "type": "unstructured",
+      "description": "Additional qualifications not captured in structured fields",
+      "evaluation_criteria": "Assess if these additional qualifications are relevant and valuable for the applied position"
+    }
+  ],
+  "metadata": {
+    "version": "1.1.0",
+    "last_updated": "2025-11-18T16:00:00.000000",
+    "description": "Comprehensive evaluation rules for job application screening (synced with constants.py)"
+  }
+}

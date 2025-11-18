@@ -11,7 +11,8 @@ async def call_api_endpoint(
     endpoint: str,
     data: Optional[Dict[str, Any]] = None,
     files: Optional[Dict[str, Any]] = None,
-    base_url: str = "http://localhost:8000"
+    base_url: str = "http://localhost:8002",
+    method: str = "POST"
 ) -> Dict[str, Any]:
     """
     Call an API endpoint and return the response.
@@ -21,20 +22,34 @@ async def call_api_endpoint(
         data: JSON data to send
         files: Files to upload
         base_url: Base URL of the API server
+        method: HTTP method (GET, POST, PUT, DELETE)
         
     Returns:
         Dictionary containing the API response
     """
     url = f"{base_url}{endpoint}"
+    method = method.upper()
     
     async with httpx.AsyncClient(timeout=60.0) as client:
         try:
-            if files:
-                response = await client.post(url, files=files)
-            elif data:
-                response = await client.post(url, json=data)
-            else:
+            if method == "GET":
                 response = await client.get(url)
+            elif method == "POST":
+                if files:
+                    response = await client.post(url, files=files)
+                elif data:
+                    response = await client.post(url, json=data)
+                else:
+                    response = await client.post(url)
+            elif method == "PUT":
+                response = await client.put(url, json=data)
+            elif method == "DELETE":
+                response = await client.delete(url)
+            else:
+                return {
+                    "error": True,
+                    "message": f"Unsupported HTTP method: {method}"
+                }
             
             response.raise_for_status()
             return response.json()

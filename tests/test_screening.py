@@ -15,8 +15,7 @@ import pytest
 import json
 import sys
 import os
-from pathlib import Path
-from unittest.mock import patch, MagicMock, Mock
+from unittest.mock import patch
 
 # Add the project root to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
@@ -29,7 +28,7 @@ from src.core.screening import (
     evaluate_unstructured_data,
     hybrid_evaluate_application
 )
-from src.constants import rules
+from src.config.constants import rules
 
 # ================================
 # Test Data Constants

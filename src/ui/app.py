@@ -10,6 +10,7 @@ from .components import (
     create_schema_tab,
     create_settings_tab
 )
+from .rules_editor import create_rules_editor_tab
 
 
 def create_app() -> gr.Blocks:
@@ -72,7 +73,7 @@ def create_app() -> gr.Blocks:
         css=custom_css
     ) as app:
         # State for API URL
-        api_url_state = gr.State(value="http://localhost:8000")
+        api_url_state = gr.State(value="http://localhost:8002")
         
         # Header
         create_header()
@@ -81,6 +82,7 @@ def create_app() -> gr.Blocks:
         with gr.Tabs():
             create_evaluation_tab(api_url_state)
             create_rules_tab(api_url_state)
+            create_rules_editor_tab(api_url_state)
             create_schema_tab(api_url_state)
             create_settings_tab(api_url_state)
         

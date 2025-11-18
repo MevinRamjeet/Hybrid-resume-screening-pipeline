@@ -4,7 +4,7 @@ import os
 import sys
 from typing import Any, Dict, List
 
-from src.constants import rules
+from src.config.constants import rules
 from src.core.rules_engine import get_field_value, evaluate_rules
 from src.utils.call_llm import call_llm
 from src.utils.logger import configured_logger

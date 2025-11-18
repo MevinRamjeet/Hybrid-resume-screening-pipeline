@@ -121,7 +121,8 @@ async def get_evaluation_rules(api_url: str) -> str:
     """
     rules_data = await call_api_endpoint(
         endpoint="/api/v1/rules",
-        base_url=api_url
+        base_url=api_url,
+        method="GET"
     )
     
     return format_rules_display(rules_data)
@@ -139,7 +140,8 @@ async def get_application_schema(api_url: str) -> str:
     """
     schema_data = await call_api_endpoint(
         endpoint="/api/v1/schema",
-        base_url=api_url
+        base_url=api_url,
+        method="GET"
     )
     
     if schema_data.get("error"):
@@ -326,8 +328,8 @@ def create_settings_tab(api_url_state: gr.State) -> gr.Tab:
             with gr.Column():
                 api_url_input = gr.Textbox(
                     label="API Base URL",
-                    value="http://localhost:8000",
-                    placeholder="http://localhost:8000",
+                    value="http://localhost:8002",
+                    placeholder="http://localhost:8002",
                     info="Base URL of the FastAPI server"
                 )
                 

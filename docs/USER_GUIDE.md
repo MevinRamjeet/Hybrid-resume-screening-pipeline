@@ -35,6 +35,41 @@ This is an **automatic screening tool** that reads job applications and tells yo
 
 ## How Do I Use It?
 
+### Visual Overview
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  STEP 1: Start Program                                  │
+│  Command: python run_full_stack.py                      │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│  STEP 2: Open Browser                                   │
+│  Go to: http://127.0.0.1:7860                          │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│  STEP 3: Enter Application Data                         │
+│  • Paste JSON data, OR                                  │
+│  • Upload a file                                        │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│  STEP 4: Click "Evaluate"                               │
+│  Wait 2-5 seconds...                                    │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│  STEP 5: Read Results                                   │
+│  ✅ PASSED or ❌ FAILED                                 │
+│  + Detailed explanations                                │
+└─────────────────────────────────────────────────────────┘
+```
+
 ### Step 1: Start the Program
 
 1. Open your computer's command window

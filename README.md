@@ -2,7 +2,9 @@
 
 An intelligent screening assistant that automatically evaluates job applications, saving time and ensuring consistent, fair candidate assessment for recruitment teams.
 
-> **👥 New to this system?** Check out the **[User Guide](USER_GUIDE.md)** - a simple, step-by-step guide for non-technical users!
+> **⚡ Just want to get started?** See **[Quick Start Guide](docs/QUICK_START.md)** - Get screening in 3 minutes!
+> 
+> **👥 New to this system?** Read the **[User Guide](docs/USER_GUIDE.md)** - Complete guide for non-technical users!
 
 ## 📋 Table of Contents
 
@@ -245,31 +247,39 @@ Every evaluation provides:
 
 ## ⚙️ Customization
 
-### Changing Screening Criteria
+### 🎯 NEW: Editable Rules!
 
-You can customize what the system checks for by editing the rules file:
+**You can now edit screening criteria without touching code!**
 
-**File to edit:** `src/constants.py`
+Rules are stored in `config/rules.json` and can be edited through:
 
-**Common customizations:**
+1. **Web Interface** (Easiest):
+   - Go to the "⚙️ Edit Rules" tab
+   - Click "Load Rules"
+   - Edit the JSON
+   - Click "Save Rules"
 
-**1. Change age requirements:**
-```python
+2. **Direct File Editing**:
+   - Open `config/rules.json`
+   - Modify rules
+   - Save file
+
+**See the complete guide:** **[Rules Editing Guide](docs/RULES_EDITING_GUIDE.md)**
+
+### Quick Examples
+
+**Change age range:**
+```json
 {"field": "age", "type": "range", "min": 21, "max": 50}
 ```
 
-**2. Add nationality options:**
-```python
+**Add nationality options:**
+```json
 {"field": "nationality", "type": "one_of", "values": ["Mauritian", "Permanent Resident"]}
 ```
 
-**3. Adjust education requirements:**
-```python
-{"field": "degree_qualifications", "type": "array_length", "min_length": 1}
-```
-
-**4. Modify experience requirements:**
-```python
+**Require minimum experience:**
+```json
 {"field": "work_experience_years", "type": "min", "value": 3}
 ```
 
@@ -282,22 +292,30 @@ The system can validate:
 - **Patterns**: Email format, phone format, ID numbers
 - **Existence**: "This field must be filled in"
 - **Combinations**: "Must meet A AND B" or "Must meet A OR B"
+- **AI Evaluation**: Qualitative content assessment
 
-### Need Help Customizing?
+### Features
 
-See the **[Technical Documentation](API_README.md)** for detailed rule syntax and examples.
+✅ **Web-based editor** - No code editing needed
+✅ **Automatic backups** - Changes are backed up automatically
+✅ **Validation** - Invalid rules are rejected
+✅ **Immediate effect** - Changes apply to next evaluation
+✅ **API access** - Programmatic rule management
 
 ## 📚 Additional Documentation
 
-**For Everyone:**
-- **[👥 User Guide](USER_GUIDE.md)** - **START HERE!** Simple guide for non-technical users
+**Getting Started:**
+- **[⚡ Quick Start](docs/QUICK_START.md)** - Get up and running in 3 minutes
+- **[📄 Cheat Sheet](docs/CHEAT_SHEET.md)** - Printable quick reference card
+- **[👥 User Guide](docs/USER_GUIDE.md)** - Complete guide for non-technical users (HR teams)
 
-**For HR Teams:**
-- **[UI Guide](UI_README.md)** - Detailed web interface instructions
+**Detailed Guides:**
+- **[UI Guide](docs/UI_README.md)** - Detailed web interface instructions and troubleshooting
+- **[📝 Rules Editing Guide](docs/RULES_EDITING_GUIDE.md)** - Complete guide to customizing screening criteria
 
 **For Developers:**
-- **[API Reference](API_README.md)** - Complete API documentation for integration
-- **[Technical Details](GRADIO_UI_SUMMARY.md)** - Implementation notes
+- **[API Reference](docs/API_README.md)** - Complete API documentation for integration
+- **[Technical Details](docs/GRADIO_UI_SUMMARY.md)** - Implementation notes
 
 ## ❓ Common Questions
 
@@ -311,7 +329,7 @@ Yes! Upload a file with multiple applications or use the API for batch processin
 The system will flag missing required fields and mark the application as incomplete.
 
 ### Can I change what gets checked?
-Yes! You can customize all screening criteria by editing the rules file (see Customization section).
+Yes! You can now edit rules through the web interface or by editing `config/rules.json`. See the [Rules Editing Guide](docs/RULES_EDITING_GUIDE.md) for details.
 
 ### Is the AI evaluation accurate?
 The AI provides assessments based on the content quality. Final hiring decisions should always involve human review.

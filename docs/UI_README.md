@@ -364,7 +364,7 @@ print(formatted)
 ## 📚 Additional Resources
 
 - [Main API Documentation](API_README.md)
-- [Project README](README.md)
+- [Project README](../README.md)
 - [Gradio Documentation](https://gradio.app/docs)
 - [FastAPI Documentation](https://fastapi.tiangolo.com)
 
